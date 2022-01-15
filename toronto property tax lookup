@@ -1,0 +1,39 @@
+[manifest.json]
+{
+    "manifest_version":2,
+    "name":"Toronto Property Tax Lookup log in",
+    "version": "0.1",
+
+    "permissions":[
+        "tabs","notifications",
+        "https://*/",
+        "webNavigation"]
+    , "background":{ "scripts":["background.js"] }
+    , "browser_action": { "default_icon":"hxsig.png" }
+}
+
+[background.js]
+chrome.browserAction.onClicked.addListener(launchPage)
+chrome.webNavigation.onCompleted.addListener(actOnPage);
+
+function launchPage(){
+    const url='https://www.toronto.ca/services-payments/property-taxes-utilities/lookup-your-property-tax/'
+    chrome.tabs.create({ active:true, url:url }, null);
+}
+ 
+function actOnPage(target){
+    const codes =[
+        'const butContinue=Array.from(document.querySelectorAll("a")).filter(a=>a.innerText=="Continue")[0].click()'
+        , 'Array.from(document.querySelectorAll("button")).filter(b=>b.innerText=="Agree")[0].click()'
+        , ";['#ROLL_NUMBER','#LAST_NAME','#POSTAL_CODE','#CUSTOMER_NUMBER'].forEach((fld,i)=>document.querySelector(fld).value=['191403206003200000005','huang','M6E2M4','006168420'][i])"
+        , "document.querySelector('#singlebuttonElement > div > button > span:nth-child(2)').click()"
+    ] 
+
+    codes.forEach(runcode)
+
+    function runcode(code){
+        chrome.tabs.query({active:true, currentWindow:true}, tabs=>{
+            chrome.tabs.executeScript(tabs[0].id, {code:code})
+        })  
+    }
+}
