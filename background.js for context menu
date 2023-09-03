@@ -1,0 +1,35 @@
+const def={
+  'hmail':'tonnywilliam@hotmail.com'
+  ,'pwd':'12181218Ge'
+  ,'gmail':'tonnywilliam@gmail.com'
+  ,'address surrey':'6345 166A Street'
+  ,'postcode V3S0W1':'V3S 0W1'
+  ,'phone 2808':'4038752808'
+  ,'phone 5251':'5874385251'
+}
+
+chrome.contextMenus.onClicked.addListener(genericOnClick);
+function fill_text(txt){window.getSelection().anchorNode.querySelector('input,textarea').value=txt}
+
+function genericOnClick(info,tab) {
+  const txt_to_fill = def[info.menuItemId];
+  chrome.scripting.executeScript({ target: {tabId: tab.id}, 
+    func: fill_text, args:[txt_to_fill] })
+}
+//create the menu
+chrome.runtime.onInstalled.addListener(function () {
+  // Create parent
+  let parent = chrome.contextMenus.create({
+    title: 'A hx filler',
+    id: 'hxparent',
+    contexts: ['editable','selection']
+  });
+  // create child items
+  Object.keys(def).forEach(item=>{
+    chrome.contextMenus.create({
+      parentId: parent,
+      title: item, id: item,
+      contexts: ['editable','selection']
+    });
+  })  
+});
