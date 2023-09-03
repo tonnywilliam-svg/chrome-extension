@@ -1,4 +1,4 @@
-const def={
+const key_content_pairs={
   'hmail':'tonnywilliam@hotmail.com'
   ,'pwd':'12181218Ge'
   ,'gmail':'tonnywilliam@gmail.com'
@@ -8,28 +8,28 @@ const def={
   ,'phone 5251':'5874385251'
 }
 
-chrome.contextMenus.onClicked.addListener(genericOnClick);
-function fill_text(txt){window.getSelection().anchorNode.querySelector('input,textarea').value=txt}
-
-function genericOnClick(info,tab) {
-  const txt_to_fill = def[info.menuItemId];
-  chrome.scripting.executeScript({ target: {tabId: tab.id}, 
-    func: fill_text, args:[txt_to_fill] })
-}
-//create the menu
+// 1 create the menu when the extension is installed
 chrome.runtime.onInstalled.addListener(function () {
   // Create parent
   let parent = chrome.contextMenus.create({
-    title: 'A hx filler',
-    id: 'hxparent',
-    contexts: ['editable','selection']
+    title: 'user these fillers...', id: 'hxparent', contexts: ['editable','selection']
   });
+  
   // create child items
-  Object.keys(def).forEach(item=>{
+  for (const key in key_content_pairs) {
     chrome.contextMenus.create({
       parentId: parent,
-      title: item, id: item,
-      contexts: ['editable','selection']
+      title: key, id: key, contexts: ['editable','selection']
     });
-  })  
+  }
+    
 });
+
+// 2 assign click action
+chrome.contextMenus.onClicked.addListener(function(info,tab) {
+  const txt_to_fill = key_content_pairs[info.menuItemId];
+  chrome.scripting.executeScript({ target: {tabId: tab.id}, 
+    func: fill_text_in_selection_point, args:[txt_to_fill] })
+});
+
+function fill_text_in_selection_point(txt){window.getSelection().anchorNode.querySelector('input,textarea').value=txt}
