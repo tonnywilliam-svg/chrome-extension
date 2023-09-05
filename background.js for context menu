@@ -10,19 +10,20 @@ const key_content_pairs={
 
 // 1 create the menu when the extension is installed
 chrome.runtime.onInstalled.addListener(function () {
+  const create_menu_item=(xparent,title,id)=>{
+    const item_details = {
+      title: title, id: id, contexts: ['editable','selection']  
+    }
+    if (xparent) item_details.parentId = xparent  //append parent when you specify one
+
+    return chrome.contextMenus.create(item_details);
+  }
+  
   // Create parent
-  let parent = chrome.contextMenus.create({
-    title: 'user these fillers...', id: 'hxparent', contexts: ['editable','selection']
-  });
+  const parent = create_menu_item(null, 'user these fillers...', 'hxparent')
   
   // create child items
-  for (const key in key_content_pairs) {
-    chrome.contextMenus.create({
-      parentId: parent,
-      title: key, id: key, contexts: ['editable','selection']
-    });
-  }
-    
+  for (const key in key_content_pairs) { create_menu_item(parent,key,key) }
 });
 
 // 2 assign click action
